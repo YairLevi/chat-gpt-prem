@@ -1,4 +1,4 @@
-package chat_gpt_prem
+package main
 
 import (
 	"context"
