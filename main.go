@@ -6,6 +6,7 @@ import (
 	"github.com/wailsapp/wails/v2/pkg/options"
 	"github.com/wailsapp/wails/v2/pkg/options/assetserver"
 	"main/api/deepgram"
+	"main/api/openai"
 )
 
 //go:embed all:frontend/dist
@@ -15,6 +16,7 @@ func main() {
 	// Create an instance of the app structure
 	app := NewApp()
 	dgStt := deepgram.NewDgSpeechToTextController()
+	chat := openai.NewChatController()
 
 	// Create application with options
 	err := wails.Run(&options.App{
@@ -29,6 +31,7 @@ func main() {
 		Bind: []interface{}{
 			app,
 			dgStt,
+			chat,
 		},
 	})
 

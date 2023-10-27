@@ -1,16 +1,23 @@
 import { useEffect, useRef, useState } from "react";
-import { Read, SendForTranscription } from "../../../wailsjs/go/deepgram/SpeechToTextController";
+import { Close, Connect, Read, SendForTranscription } from "@/../wailsjs/go/deepgram/SpeechToTextController";
 
 
 export function useSpeechRecognition(callback: (transcript: string) => void) {
   const [listening, setListening] = useState(false)
-  const mediaRecorderRef = useRef<MediaRecorder>()
+  const [ready, setReady] = useState(true)
   const intervalIDRef = useRef<NodeJS.Timeout>()
+  const mediaRecorderRef = useRef<MediaRecorder>()
+
   const recorderTimeSliceMS = 500
   const readMsgDelayMS = 300
 
   useEffect(() => {
-    console.log('here')
+    if (!listening) {
+      console.log('not listening')
+      return
+    }
+
+    setReady(false)
     navigator.mediaDevices.getUserMedia({ audio: true }).then((stream) => {
       if (!MediaRecorder.isTypeSupported('audio/webm'))
         return alert('Browser not supported')
@@ -19,40 +26,45 @@ export function useSpeechRecognition(callback: (transcript: string) => void) {
         mimeType: 'audio/webm',
       })
 
-      mediaRecorder.addEventListener('dataavailable', async (event) => {
-        if (event.data.size > 0) {
-          const arrayBuffer = await event.data.arrayBuffer()
-          const uint8Array = new Uint8Array(arrayBuffer);
-          const byteArray: number[] = Array.from(uint8Array);
-          await SendForTranscription(byteArray)
+      mediaRecorderRef.current = mediaRecorder
+
+      Connect().then((connected) => {
+        if (!connected) {
+          console.log('Failed to connect to Deepgram.')
+          return
         }
-      })
 
-      mediaRecorder.onstop = async () => {
-        setListening(false)
-        clearInterval(intervalIDRef.current)
-      }
-
-      mediaRecorder.onstart = async () => {
-        setListening(true)
         intervalIDRef.current = setInterval(async () => {
           const result = await Read()
-          if (!result.is_final || result.transcript == "") return
-          callback(result.transcript)
+          if (result.is_final) {
+            callback(result.transcript)
+          }
         }, readMsgDelayMS)
-      }
 
-      mediaRecorderRef.current = mediaRecorder
+        mediaRecorder.addEventListener('dataavailable', async (event) => {
+          if (event.data.size > 0) {
+            const arrayBuffer = await event.data.arrayBuffer()
+            const uint8Array = new Uint8Array(arrayBuffer);
+            const byteArray: number[] = Array.from(uint8Array);
+            await SendForTranscription(byteArray)
+          }
+        })
+
+        mediaRecorder.start(recorderTimeSliceMS)
+        setReady(true)
+      })
     })
-  }, []);
 
-  function start() {
-    mediaRecorderRef.current.start(recorderTimeSliceMS)
+    return () => {
+      setReady(false)
+      mediaRecorderRef.current.stop()
+      Close().then(() => setReady(true))
+    }
+  }, [listening]);
+
+  return {
+    toggle: () => setListening(prev => !prev),
+    listening: listening,
+    ready: ready
   }
-
-  function stop() {
-    mediaRecorderRef.current.stop()
-  }
-
-  return { start, stop, listening }
 }

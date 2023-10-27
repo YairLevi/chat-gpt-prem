@@ -6,6 +6,10 @@ export function Close() {
   return window['go']['deepgram']['SpeechToTextController']['Close']();
 }
 
+export function Connect() {
+  return window['go']['deepgram']['SpeechToTextController']['Connect']();
+}
+
 export function Read() {
   return window['go']['deepgram']['SpeechToTextController']['Read']();
 }

@@ -11,7 +11,7 @@ import { useSpeechRecognition } from "@/api/speech/deepgram";
 export function Conversation() {
   const { messages, ask, isLoading } = useOpenAiChatApi()
   const inputRef = useRef<HTMLInputElement>(null)
-  const {listening ,start, stop} = useSpeechRecognition((transcript) => {
+  const {toggle, ready, listening} = useSpeechRecognition((transcript) => {
     if (!inputRef.current) return
     inputRef.current.value += transcript + " "
   })
@@ -44,11 +44,11 @@ export function Conversation() {
       </div>
       <div className="bg-gradient-to-t from-accent via-accent via-60% to-transparent w-full p-5 flex gap-3">
         <Input className="drop-shadow-xl text-md" type="textarea" ref={inputRef}/>
-        <Button onClick={onSend}>
+        <Button onClick={onSend} variant="outline">
           <SendHorizonal size={20}/>
         </Button>
-        <Button onClick={listening ? stop : start}>
-          {listening ? <Mic size={20}/> : <MicOff size={20}/>}
+        <Button onClick={toggle} variant="outline" disabled={!ready}>
+          {listening ? <MicOff size={20} /> : <Mic size={20}/>}
         </Button>
       </div>
     </div>

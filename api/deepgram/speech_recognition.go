@@ -8,6 +8,7 @@ import (
 	"github.com/gorilla/websocket"
 	"log"
 	"strings"
+	"sync"
 	"time"
 )
 
@@ -16,7 +17,9 @@ const (
 )
 
 type SpeechToTextController struct {
+	DgClient      *deepgram.Client
 	DgConn        *websocket.Conn
+	Mutex         sync.Mutex
 	ResultChannel chan TranscriptionResult
 }
 
@@ -26,8 +29,14 @@ type TranscriptionResult struct {
 }
 
 func NewDgSpeechToTextController() *SpeechToTextController {
-	dg := *deepgram.NewClient(DEEPGRAM_API_KEY)
+	dg := deepgram.NewClient(DEEPGRAM_API_KEY)
 
+	return &SpeechToTextController{
+		DgClient: dg,
+	}
+}
+
+func (controller *SpeechToTextController) Connect() bool {
 	liveTranscriptionOptions := deepgram.LiveTranscriptionOptions{
 		Language:        "en-US",
 		Smart_format:    true,
@@ -36,20 +45,19 @@ func NewDgSpeechToTextController() *SpeechToTextController {
 		Sample_rate:     16000,
 	}
 
-	dgConn, _, err := dg.LiveTranscription(liveTranscriptionOptions)
+	dgConn, _, err := controller.DgClient.LiveTranscription(liveTranscriptionOptions)
 	if err != nil {
 		log.Println("ERROR creating LiveTranscription connection:", err)
-		return nil
+		return false
 	}
 
-	controller := &SpeechToTextController{
-		DgConn:        dgConn,
-		ResultChannel: make(chan TranscriptionResult, 50),
-	}
-	controller.initKeepAliveGoroutine()
+	controller.DgConn = dgConn
+	controller.Mutex = sync.Mutex{}
+	controller.ResultChannel = make(chan TranscriptionResult, 50)
+
 	controller.initReadGoroutine()
-
-	return controller
+	controller.initKeepAliveGoroutine()
+	return true
 }
 
 func (controller *SpeechToTextController) Close() {
@@ -67,7 +75,9 @@ func (controller *SpeechToTextController) Read() TranscriptionResult {
 }
 
 func (controller *SpeechToTextController) SendForTranscription(audioChunk []byte) {
+	controller.Mutex.Lock()
 	err := controller.DgConn.WriteMessage(websocket.BinaryMessage, audioChunk)
+	controller.Mutex.Unlock()
 	if err != nil {
 		log.Println("ERROR writing message to socket:", err)
 	}
@@ -84,14 +94,18 @@ func (controller *SpeechToTextController) initKeepAliveGoroutine() {
 			jsonMessage, err := json.Marshal(message)
 			if err != nil {
 				log.Println("ERROR marshal keep alive message", err)
+				return
 			}
 
 			// Write the JSON message to the WebSocket
+			controller.Mutex.Lock()
 			err = controller.DgConn.WriteMessage(websocket.TextMessage, jsonMessage)
+			controller.Mutex.Unlock()
 			if err != nil {
 				log.Println("ERROR keepalive", err)
+				return
 			}
-			time.Sleep(2 * time.Second)
+			time.Sleep(10 * time.Second)
 		}
 	}()
 }
@@ -104,26 +118,20 @@ func (controller *SpeechToTextController) initReadGoroutine() {
 			fmt.Println("Read Message.")
 			if err != nil {
 				log.Println("ERROR reading message:", err)
+				return
 			}
 			jsonParsed, jsonErr := gabs.ParseJSON(message)
 			if jsonErr != nil {
 				log.Println("ERROR parsing JSON message:", err)
+				return
 			}
 			transcript := jsonParsed.Path("channel.alternatives.0.transcript").String()
-
-			if transcript == "" {
-				continue
-			}
 
 			isFinal := false
 			if jsonParsed.Path("is_final").String() == "true" {
 				isFinal = true
 			}
 
-			if !isFinal {
-				continue
-
-			}
 			controller.ResultChannel <- TranscriptionResult{
 				Transcript: strings.Trim(transcript, `"`),
 				IsFinal:    isFinal,

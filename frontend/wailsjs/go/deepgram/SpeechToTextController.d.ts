@@ -4,6 +4,8 @@ import {deepgram} from '../models';
 
 export function Close():Promise<void>;
 
+export function Connect():Promise<boolean>;
+
 export function Read():Promise<deepgram.TranscriptionResult>;
 
 export function SendForTranscription(arg1:Array<number>):Promise<void>;
