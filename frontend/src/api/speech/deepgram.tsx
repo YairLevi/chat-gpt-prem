@@ -1,67 +1,58 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
+import { Read, SendForTranscription } from "../../../wailsjs/go/deepgram/SpeechToTextController";
+
 
 export function useSpeechRecognition(callback: (transcript: string) => void) {
-  const [socket, setSocket] = useState<WebSocket>()
   const [listening, setListening] = useState(false)
+  const mediaRecorderRef = useRef<MediaRecorder>()
+  const intervalIDRef = useRef<NodeJS.Timeout>()
+  const recorderTimeSliceMS = 500
+  const readMsgDelayMS = 300
 
   useEffect(() => {
-    if (!listening) {
-      console.log('not listening.')
-      return
-    }
-
-    const socket = new WebSocket('wss://api.deepgram.com/v1/listen?' +
-      'sample_rate=16000&' +
-      'smart_format=true&' +
-      'model=nova&' +
-      'language=en-US&' +
-      'interim_results=true'
-      , [
-      'token',
-      '71b9c06ebb4caef6eb6d3e0d1d3047446dbe1fa0',
-    ])
-
+    console.log('here')
     navigator.mediaDevices.getUserMedia({ audio: true }).then((stream) => {
-      console.log({ stream })
       if (!MediaRecorder.isTypeSupported('audio/webm'))
         return alert('Browser not supported')
+
       const mediaRecorder = new MediaRecorder(stream, {
         mimeType: 'audio/webm',
       })
-      socket.onopen = () => {
-        console.log({ event: 'onopen' })
-        mediaRecorder.addEventListener('dataavailable', async (event) => {
-          if (event.data.size > 0 && socket.readyState == 1) {
-            socket.send(event.data)
-          }
-        })
-        mediaRecorder.start(1000)
-        setSocket(socket)
-      }
 
-      socket.onmessage = (message) => {
-        const received = JSON.parse(message.data)
-        const transcript = received.channel.alternatives[0].transcript
-        if (transcript && received.is_final) {
-          console.log(transcript)
-          callback(transcript)
+      mediaRecorder.addEventListener('dataavailable', async (event) => {
+        if (event.data.size > 0) {
+          const arrayBuffer = await event.data.arrayBuffer()
+          const uint8Array = new Uint8Array(arrayBuffer);
+          const byteArray: number[] = Array.from(uint8Array);
+          await SendForTranscription(byteArray)
         }
+      })
+
+      mediaRecorder.onstop = async () => {
+        setListening(false)
+        clearInterval(intervalIDRef.current)
       }
 
-      socket.onclose = () => {
-        console.log({ event: 'onclose' })
+      mediaRecorder.onstart = async () => {
+        setListening(true)
+        intervalIDRef.current = setInterval(async () => {
+          const result = await Read()
+          if (!result.is_final || result.transcript == "") return
+          callback(result.transcript)
+        }, readMsgDelayMS)
       }
 
-      socket.onerror = (error) => {
-        console.log({ event: 'onerror', error })
-      }
+      mediaRecorderRef.current = mediaRecorder
     })
+  }, []);
 
-    return () => {
-      console.log('closing socket...')
-      socket?.close()
-    }
-  }, [listening]);
+  function start() {
+    mediaRecorderRef.current.start(recorderTimeSliceMS)
+  }
 
-  return () => setListening(!listening)
+  function stop() {
+    mediaRecorderRef.current.stop()
+  }
+
+  return { start, stop, listening }
 }

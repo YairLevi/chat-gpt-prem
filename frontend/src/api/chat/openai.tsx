@@ -4,7 +4,7 @@ type ChatMessage = OpenAI.Chat.Completions.ChatCompletionMessage
 
 
 const openai = new OpenAI({
-  apiKey: "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",
+  apiKey: "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",
   dangerouslyAllowBrowser: true,
 });
 

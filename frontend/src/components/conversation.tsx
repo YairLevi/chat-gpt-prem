@@ -2,7 +2,7 @@ import { Response } from "@/components/response";
 import { Prompt } from "@/components/prompt";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { Mic, SendHorizonal } from "lucide-react";
+import { Mic, MicOff, SendHorizonal } from "lucide-react";
 import { useEffect, useRef } from "react";
 import { useOpenAiChatApi } from "@/api/chat/openai";
 import { useSpeechRecognition } from "@/api/speech/deepgram";
@@ -11,7 +11,7 @@ import { useSpeechRecognition } from "@/api/speech/deepgram";
 export function Conversation() {
   const { messages, ask, isLoading } = useOpenAiChatApi()
   const inputRef = useRef<HTMLInputElement>(null)
-  const toggle = useSpeechRecognition((transcript) => {
+  const {listening ,start, stop} = useSpeechRecognition((transcript) => {
     if (!inputRef.current) return
     inputRef.current.value += transcript + " "
   })
@@ -47,8 +47,8 @@ export function Conversation() {
         <Button onClick={onSend}>
           <SendHorizonal size={20}/>
         </Button>
-        <Button onClick={toggle}>
-          <Mic size={20}/>
+        <Button onClick={listening ? stop : start}>
+          {listening ? <Mic size={20}/> : <MicOff size={20}/>}
         </Button>
       </div>
     </div>
