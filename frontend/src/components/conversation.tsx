@@ -4,12 +4,12 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Mic, MicOff, SendHorizonal } from "lucide-react";
 import { useEffect, useRef } from "react";
-import { useOpenAiChatApi } from "@/api/chat/openai";
-import { useSpeechRecognition } from "@/api/speech/deepgram";
+import { useOpenAIChatApi } from "@/api/chat/openai";
+import { useSpeechRecognition } from "@/api/stt/deepgram";
 
 
 export function Conversation() {
-  const { messages, ask, isLoading } = useOpenAiChatApi()
+  const { messages, ask, isLoading } = useOpenAIChatApi()
   const inputRef = useRef<HTMLInputElement>(null)
   const {toggle, ready, listening} = useSpeechRecognition((transcript) => {
     if (!inputRef.current) return
@@ -43,7 +43,7 @@ export function Conversation() {
         }
       </div>
       <div className="bg-gradient-to-t from-accent via-accent via-60% to-transparent w-full p-5 flex gap-3">
-        <Input className="drop-shadow-xl text-md" type="textarea" ref={inputRef}/>
+        <Input className="text-md" type="textarea" ref={inputRef}/>
         <Button onClick={onSend} variant="outline">
           <SendHorizonal size={20}/>
         </Button>

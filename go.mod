@@ -6,8 +6,10 @@ require (
 	github.com/Jeffail/gabs/v2 v2.7.0
 	github.com/deepgram-devs/deepgram-go-sdk v0.15.0
 	github.com/gorilla/websocket v1.5.0
+	github.com/joho/godotenv v1.5.1
 	github.com/sashabaranov/go-openai v1.16.0
 	github.com/wailsapp/wails/v2 v2.5.1
+	gorm.io/gorm v1.25.5
 )
 
 require (
@@ -16,6 +18,8 @@ require (
 	github.com/google/go-querystring v1.1.0 // indirect
 	github.com/google/uuid v1.1.2 // indirect
 	github.com/jchv/go-winloader v0.0.0-20210711035445-715c2860da7e // indirect
+	github.com/jinzhu/inflection v1.0.0 // indirect
+	github.com/jinzhu/now v1.1.5 // indirect
 	github.com/labstack/echo/v4 v4.9.0 // indirect
 	github.com/labstack/gommon v0.3.1 // indirect
 	github.com/leaanthony/go-ansi-parser v1.0.1 // indirect

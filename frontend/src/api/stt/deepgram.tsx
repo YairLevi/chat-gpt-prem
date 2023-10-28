@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from "react";
-import { Close, Connect, Read, SendForTranscription } from "@/../wailsjs/go/deepgram/SpeechToTextController";
+import { Close, Connect, ReadLastTranscription, SendForTranscription } from "@/../wailsjs/go/stt/Deepgram";
 
 
 export function useSpeechRecognition(callback: (transcript: string) => void) {
@@ -35,7 +35,7 @@ export function useSpeechRecognition(callback: (transcript: string) => void) {
         }
 
         intervalIDRef.current = setInterval(async () => {
-          const result = await Read()
+          const result = await ReadLastTranscription()
           if (result.is_final) {
             callback(result.transcript)
           }

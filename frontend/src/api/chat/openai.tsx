@@ -1,26 +1,33 @@
-import OpenAI from "openai";
-import { useEffect, useState } from "react";
-import { Ask } from "../../../wailsjs/go/openai/ChatController";
-type ChatMessage = OpenAI.Chat.Completions.ChatCompletionMessage
+import { useState } from "react";
+import { Ask } from "@/../wailsjs/go/chat/OpenAIService";
+import { chat } from '@/../wailsjs/go/models'
 
+type ChatMessage = {
+  role: "assistant" | "user"
+  content: string
+}
 
-// const openai = new OpenAI({
-//   apiKey: "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",
-//   dangerouslyAllowBrowser: true,
-// });
-
-export function useOpenAiChatApi() {
+export function useOpenAIChatApi() {
   const [messages, setMessages] = useState<ChatMessage[]>([])
   const [isLoading, setLoading] = useState(false)
 
   async function ask(question: string) {
+    const history = messages.map(msg => {
+      const backendMsg = new chat.Message()
+      backendMsg.content = msg.content
+      backendMsg.role = msg.role
+      return backendMsg
+    })
+
     setMessages(prev => [...prev, {
       role: "user",
       content: question,
     }])
+
     setLoading(true)
-    const response = await Ask(question)
+    const response = await Ask(history, question)
     setLoading(false)
+
     setMessages(prev => [...prev, {
       role: "assistant",
       content: response
