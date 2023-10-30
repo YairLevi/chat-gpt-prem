@@ -4,4 +4,4 @@ frontend/dist
 .idea/
 .vscode/
 data/
-env/
+backend/env/

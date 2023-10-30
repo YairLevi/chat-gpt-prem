@@ -7,24 +7,48 @@ import (
 	"github.com/wailsapp/wails/v2/pkg/options"
 	"github.com/wailsapp/wails/v2/pkg/options/assetserver"
 	"log"
-	"main/api/chat"
-	"main/api/stt"
+	"main/backend/api/chat"
+	"main/backend/api/stt"
+	database2 "main/backend/database"
+	"main/backend/services"
 )
 
 //go:embed all:frontend/dist
 var assets embed.FS
 
 func main() {
-	err := godotenv.Load("env/.env")
+	err := godotenv.Load("backend/env/.env")
 	if err != nil {
-		log.Fatal("ERROR, cant load env.")
+		log.Fatal("ERROR, cant load env.", err)
+	}
+
+	gormDB := database2.InitializeSqlite("database.db")
+	err = gormDB.AutoMigrate(
+		&chat.Message{},
+		&chat.Chat{},
+	)
+	if err != nil {
+		log.Fatal("ERROR, migrating models", err)
 	}
 
 	// Create an instance of the app structure
 	var (
-		dgStt      stt.Service  = stt.NewDeepgramService()
-		openaiChat chat.Service = chat.NewOpenAIService()
+		dgStt       = stt.NewDeepgramService()
+		openaiChat  = chat.NewOpenAIService()
+		chatService = services.NewChatService(
+			//database.NewGormRepository[chat.Chat](gormDB),
+			gormDB,
+			*openaiChat,
+		)
 	)
+
+	//chatService.New("Chat num 1")
+	//ch := chatService.GetChatByID(9)
+	//ch.Messages = append(ch.Messages, chat.Message{
+	//	Role:    "user",
+	//	Content: "Hello world!",
+	//})
+	//chatService.SaveChat(ch)
 
 	// Create application with options
 	err = wails.Run(&options.App{
@@ -34,10 +58,10 @@ func main() {
 		AssetServer: &assetserver.Options{
 			Assets: assets,
 		},
-		BackgroundColour: &options.RGBA{R: 27, G: 38, B: 54, A: 1},
 		Bind: []interface{}{
 			dgStt,
 			openaiChat,
+			chatService,
 		},
 	})
 

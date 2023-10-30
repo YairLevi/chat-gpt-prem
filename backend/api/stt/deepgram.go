@@ -13,6 +13,11 @@ import (
 	"time"
 )
 
+type TranscriptionResult struct {
+	Transcript string `json:"transcript"`
+	IsFinal    bool   `json:"is_final"`
+}
+
 type Deepgram struct {
 	Client        *deepgram.Client
 	Conn          *websocket.Conn

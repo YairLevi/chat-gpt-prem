@@ -25,13 +25,13 @@ export function useOpenAIChatApi() {
     }])
 
     setLoading(true)
-    const response = await Ask(history, question)
+    // const response = await Ask(history, question)
     setLoading(false)
 
-    setMessages(prev => [...prev, {
-      role: "assistant",
-      content: response
-    }])
+    // setMessages(prev => [...prev, {
+    //   role: "assistant",
+    //   content: response
+    // }])
   }
 
   return {

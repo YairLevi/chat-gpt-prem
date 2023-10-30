@@ -4,11 +4,25 @@ import (
 	"context"
 	"github.com/sashabaranov/go-openai"
 	"log"
+	db "main/backend/database"
 	"os"
 )
 
 type OpenAIService struct {
 	Client *openai.Client
+}
+
+type Chat struct {
+	db.Model
+	Title    string    `json:"title"`
+	Messages []Message `json:"messages"`
+}
+
+type Message struct {
+	db.Model
+	ChatID  int    `json:"chat_id"`
+	Role    string `json:"role"`
+	Content string `json:"content"`
 }
 
 func NewOpenAIService() *OpenAIService {
@@ -17,13 +31,8 @@ func NewOpenAIService() *OpenAIService {
 	}
 }
 
-func (chat *OpenAIService) Ask(history []Message, question string) string {
-	historyInOpenAIFormat := chat.turnMessagesToOpenAIFormat(history)
-	newMessage := openai.ChatCompletionMessage{
-		Content: question,
-		Role:    "user",
-	}
-	messages := append(historyInOpenAIFormat, newMessage)
+func (chat *OpenAIService) Ask(history []Message) string {
+	messages := chat.turnMessagesToOpenAIFormat(history)
 
 	resp, err := chat.Client.CreateChatCompletion(
 		context.Background(),
