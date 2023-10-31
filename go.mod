@@ -6,7 +6,6 @@ require (
 	github.com/Jeffail/gabs/v2 v2.7.0
 	github.com/deepgram-devs/deepgram-go-sdk v0.15.0
 	github.com/gorilla/websocket v1.5.0
-	github.com/joho/godotenv v1.5.1
 	github.com/sashabaranov/go-openai v1.16.0
 	github.com/wailsapp/wails/v2 v2.5.1
 	gorm.io/driver/sqlite v1.5.4

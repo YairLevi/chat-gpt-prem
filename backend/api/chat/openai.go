@@ -5,7 +5,7 @@ import (
 	"github.com/sashabaranov/go-openai"
 	"log"
 	db "main/backend/database"
-	"os"
+	"main/backend/env"
 )
 
 type OpenAIService struct {
@@ -27,7 +27,7 @@ type Message struct {
 
 func NewOpenAIService() *OpenAIService {
 	return &OpenAIService{
-		Client: openai.NewClient(os.Getenv("OPENAI_API_KEY")),
+		Client: openai.NewClient(env.OPENAI_API_KEY),
 	}
 }
 

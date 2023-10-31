@@ -3,13 +3,19 @@ import { chat } from "../../wailsjs/go/models";
 import Chat = chat.Chat;
 import * as chatService from "../../wailsjs/go/services/ChatService";
 import { useAsync } from "@/hooks/useEffectAsync";
-import { AddMessage, GetChatsWithoutMessages, GetChatWithMessages } from "../../wailsjs/go/services/ChatService";
+import {
+  AddMessage,
+  DeleteChat,
+  GetChatsWithoutMessages,
+  GetChatWithMessages
+} from "../../wailsjs/go/services/ChatService";
 import { Ask } from "../../wailsjs/go/chat/OpenAIService";
 
 type ChatExports = {
   currentChat: Chat
   chats: Chat[]
   createChat: (title: string) => Promise<void>
+  deleteChat: (chatID: number) => Promise<void>
   changeChat: (chat: Chat) => Promise<void>
   askQuestion: (question: string) => Promise<void>
 }
@@ -74,12 +80,21 @@ export function ChatProvider({ children }: PropsWithChildren) {
     await AddMessage(currentChat.id, "assistant", answer)
   }
 
+  async function deleteChat(chatID: number) {
+    await DeleteChat(chatID)
+    setChats(prev => prev.filter(chat => chat.id != chatID))
+    if (currentChat.id == chatID) {
+      setCurrentChat(undefined)
+    }
+  }
+
   const value = {
     currentChat,
     createChat,
     changeChat,
     chats,
-    askQuestion
+    askQuestion,
+    deleteChat
   }
 
   return (

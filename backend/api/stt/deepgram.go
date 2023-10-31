@@ -7,7 +7,7 @@ import (
 	"github.com/deepgram-devs/deepgram-go-sdk/deepgram"
 	"github.com/gorilla/websocket"
 	"log"
-	"os"
+	"main/backend/env"
 	"strings"
 	"sync"
 	"time"
@@ -27,7 +27,7 @@ type Deepgram struct {
 
 func NewDeepgramService() *Deepgram {
 	return &Deepgram{
-		Client: deepgram.NewClient(os.Getenv("DEEPGRAM_API_KEY")),
+		Client: deepgram.NewClient(env.DEEPGRAM_API_KEY),
 	}
 }
 

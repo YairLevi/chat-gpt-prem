@@ -14,10 +14,10 @@ type Repository[T any] interface {
 }
 
 type Model struct {
-	ID        uint           `json:"id" gorm:"primarykey"`
+	ID        uint           `json:"id" orm:"primarykey"`
 	CreatedAt time.Time      `json:"createdAt"`
 	UpdatedAt time.Time      `json:"updatedAt"`
-	DeletedAt gorm.DeletedAt `json:"deletedAt" gorm:"index"`
+	DeletedAt gorm.DeletedAt `json:"deletedAt" orm:"index"`
 }
 
 type GormRepository[T any] struct {

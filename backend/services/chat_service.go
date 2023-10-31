@@ -48,6 +48,10 @@ func (cs *ChatService) Ask(chatID uint, question string) []chat.Message {
 	return []chat.Message{userMessage, botMessage}
 }
 
+func (cs *ChatService) DeleteChat(chatID uint) {
+	cs.db.Delete(&chat.Chat{}, chatID)
+}
+
 func (cs *ChatService) AddMessage(chatID uint, role string, content string) {
 	var ch chat.Chat
 	cs.db.Find(&ch, chatID)

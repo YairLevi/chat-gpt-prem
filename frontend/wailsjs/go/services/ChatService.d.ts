@@ -6,6 +6,8 @@ export function AddMessage(arg1:number,arg2:string,arg3:string):Promise<void>;
 
 export function Ask(arg1:number,arg2:string):Promise<Array<chat.Message>>;
 
+export function DeleteChat(arg1:number):Promise<void>;
+
 export function GetChatByID(arg1:number):Promise<chat.Chat>;
 
 export function GetChatWithMessages(arg1:number):Promise<chat.Chat>;
