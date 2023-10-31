@@ -52,9 +52,11 @@ func main() {
 
 	// Create application with options
 	err = wails.Run(&options.App{
-		Title:  "chat-gpt-prem",
-		Width:  1024,
-		Height: 768,
+		Title:     "chat-gpt-prem",
+		Width:     1024,
+		MinWidth:  1024,
+		Height:    768,
+		MinHeight: 768,
 		AssetServer: &assetserver.Options{
 			Assets: assets,
 		},

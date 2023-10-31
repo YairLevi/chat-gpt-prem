@@ -22,7 +22,7 @@
         --muted: 0 0% 96.1%;
         --muted-foreground: 0 0% 45.1%;
 
-        --accent: 0 0% 96.1%;
+        --accent: 0 0% 95.1%;
         --accent-foreground: 0 0% 9%;
 
         --destructive: 0 84.2% 60.2%;
@@ -36,8 +36,8 @@
     }
 
     .dark {
-        --background: 0 0% 3.9%;
-        --foreground: 0 0% 98%;
+        --background: 0 0% 10%;
+        --foreground: 0 0% 90%;
 
         --card: 0 0% 3.9%;
         --card-foreground: 0 0% 98%;
@@ -54,7 +54,7 @@
         --muted: 0 0% 14.9%;
         --muted-foreground: 0 0% 63.9%;
 
-        --accent: 0 0% 14.9%;
+        --accent: 0 0% 17.9%;
         --accent-foreground: 0 0% 98%;
 
         --destructive: 0 62.8% 30.6%;
@@ -75,7 +75,7 @@ ul {
 }
 
 code {
-    background-color: white !important;
+    background-color: hsl(var(--accent)) !important;
 }
 
 
@@ -87,9 +87,9 @@ code {
 
 /* Chrome, Edge, and Safari */
 *::-webkit-scrollbar {
-    width: 1rem;
+    width: 0.8rem;
     height: 10px;
-    margin: 5px;
+    margin: 1px;
 }
 
 *::-webkit-scrollbar-track {

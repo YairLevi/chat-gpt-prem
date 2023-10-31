@@ -14,7 +14,7 @@ export function Prompt({ content }: PromptProps) {
         <AvatarFallback className="text-white bg-orange-500">YL</AvatarFallback>
       </Avatar>
       <MarkdownPreview
-        className="bg-transparent !min-w-0"
+        className="bg-transparent !min-w-0 text-foreground"
         source={content}
       />
     </div>

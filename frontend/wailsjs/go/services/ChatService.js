@@ -10,6 +10,10 @@ export function Ask(arg1, arg2) {
   return window['go']['services']['ChatService']['Ask'](arg1, arg2);
 }
 
+export function DeleteChat(arg1) {
+  return window['go']['services']['ChatService']['DeleteChat'](arg1);
+}
+
 export function GetChatByID(arg1) {
   return window['go']['services']['ChatService']['GetChatByID'](arg1);
 }
