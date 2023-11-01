@@ -5,7 +5,7 @@ import (
 	"github.com/sashabaranov/go-openai"
 	"log"
 	db "main/backend/database"
-	"main/backend/env"
+	env "main/backend/env"
 )
 
 type OpenAIService struct {
