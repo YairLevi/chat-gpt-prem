@@ -8,7 +8,7 @@ import (
 	"log"
 	"main/backend/api/chat"
 	"main/backend/api/stt"
-	database2 "main/backend/database"
+	"main/backend/database"
 	"main/backend/services"
 	"os"
 	"time"
@@ -18,7 +18,7 @@ import (
 var assets embed.FS
 
 func main() {
-	gormDB := database2.InitializeSqlite("database.db")
+	gormDB := database.InitializeSqlite("database.db")
 	err := gormDB.AutoMigrate(
 		&chat.Message{},
 		&chat.Chat{},
