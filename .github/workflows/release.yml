@@ -25,6 +25,10 @@ jobs:
         with:
           go-version: '1.20'
 
+      - name: test print
+        run: |
+          dir C:\hostedtoolcache\windows\go\1.20.10\x64\src\main
+
       - name: Install Wails
         run: go install github.com/wailsapp/wails/v2/cmd/wails@latest
 
